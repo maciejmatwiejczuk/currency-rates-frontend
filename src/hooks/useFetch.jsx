@@ -14,13 +14,13 @@ export function useFetch({ url, params }) {
 
     async function fetchData() {
       try {
+        setIsLoading(true);
+
         const response = await axios(url, { params: JSON.parse(paramsString) });
 
-        // if (!response.ok) {
-        //   throw new Error(`HTTP error: Status ${response.status}`);
-        // }
+        const data = response.data.data ? response.data.data : response.data;
 
-        !ignore && setData(response.data);
+        !ignore && setData(data);
       } catch (error) {
         setError(error);
       } finally {

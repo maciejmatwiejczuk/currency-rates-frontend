@@ -26,9 +26,18 @@ export default function Dashboard() {
       str += `${currency}|`;
     }
     str = str.slice(0, -1).toLowerCase();
-    console.log(str);
+
     return str;
   }
+
+  const {
+    data: timeSeries,
+    isLoading: isLoadingCurrencies,
+    error: errorCurrencies,
+  } = useFetch({
+    url: `https://api.frankfurter.app/${earliestDate}..`,
+    params: { from: baseCurrency },
+  });
 
   const {
     data: news,
@@ -44,19 +53,6 @@ export default function Dashboard() {
       page: newsPage,
     },
   });
-
-  const {
-    data: timeSeries,
-    isLoading: isLoadingCurrencies,
-    error: errorCurrencies,
-  } = useFetch({
-    url: `https://api.frankfurter.app/${earliestDate}..`,
-    params: { from: baseCurrency },
-  });
-
-  if (isLoadingCurrencies || isLoadingNews) {
-    return <p>Loading...</p>;
-  }
 
   if (errorCurrencies) {
     return <p>{errorCurrencies.message}</p>;
@@ -75,14 +71,14 @@ export default function Dashboard() {
         setEarliestDate={setEarliestDate}
         checkedCurrencies={checkedCurrencies}
         setCheckedCurrencies={setCheckedCurrencies}
+        isLoadingCurrencies={isLoadingCurrencies}
       />
-      {news && (
-        <NewsSection
-          news={news.data}
-          page={newsPage}
-          handlePageChange={handleNewsPageChange}
-        />
-      )}
+      <NewsSection
+        news={news}
+        page={newsPage}
+        handlePageChange={handleNewsPageChange}
+        isLoadingNews={isLoadingNews}
+      />
     </>
   );
 }

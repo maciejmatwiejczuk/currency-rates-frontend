@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper, CircularProgress } from '@mui/material';
 
 import DropdownWithSearch from './DropdownWithSearch';
 import Chart from './Chart';
@@ -20,6 +20,7 @@ export default function ExchangeRatesSection({
   setEarliestDate,
   checkedCurrencies,
   setCheckedCurrencies,
+  isLoadingCurrencies,
 }) {
   const [timeSpan, setTimeSpan] = useState(timeSpanDropdownOptions[0].value);
 
@@ -105,10 +106,22 @@ export default function ExchangeRatesSection({
               paddingBottom: 2,
             }}
           >
-            <Chart
-              rates={parseRatesForChart(timeSeries?.rates)}
-              checkedCurrencies={checkedCurrencies}
-            />
+            {isLoadingCurrencies ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <Chart
+                rates={parseRatesForChart(timeSeries?.rates)}
+                checkedCurrencies={checkedCurrencies}
+              />
+            )}
           </Paper>
         </Box>
 
@@ -123,14 +136,11 @@ export default function ExchangeRatesSection({
 }
 
 ExchangeRatesSection.propTypes = {
-  timeSeries: PropTypes.arrayOf(
-    PropTypes.shape({
-      date: PropTypes.string,
-    })
-  ),
+  timeSeries: PropTypes.object,
   baseCurrency: PropTypes.string,
   setBaseCurrency: PropTypes.func,
   setEarliestDate: PropTypes.func,
   checkedCurrencies: PropTypes.arrayOf(PropTypes.string),
   setCheckedCurrencies: PropTypes.func,
+  isLoadingCurrencies: PropTypes.bool,
 };
