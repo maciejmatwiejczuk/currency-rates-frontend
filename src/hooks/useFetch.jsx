@@ -14,8 +14,6 @@ export function useFetch({ url, params }) {
 
     async function fetchData() {
       try {
-        setIsLoading(true);
-
         const response = await axios(url, { params: JSON.parse(paramsString) });
 
         const data = response.data.data ? response.data.data : response.data;
@@ -24,7 +22,7 @@ export function useFetch({ url, params }) {
       } catch (error) {
         setError(error);
       } finally {
-        setIsLoading(false);
+        !ignore && setIsLoading(false);
       }
     }
 
