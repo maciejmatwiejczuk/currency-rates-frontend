@@ -12,17 +12,25 @@ import { currencies } from '../constants/currencies';
 import { parseRatesForChart } from '../utils/parseRatesForChart';
 import TimeSpanSelect from './TimeSpanSelect';
 import DownloadMenu from './DownloadMenu';
+import { useFetch } from '../hooks/useFetch';
+import { formatDate } from '../utils/formatDate';
+import { subtractYears } from '../utils/subtractYears';
 
 export default function ExchangeRatesSection({
-  timeSeries,
   baseCurrency,
   setBaseCurrency,
-  setEarliestDate,
   checkedCurrencies,
   setCheckedCurrencies,
-  isLoadingCurrencies,
 }) {
   const [timeSpan, setTimeSpan] = useState(timeSpanDropdownOptions[0].value);
+  const [earliestDate, setEarliestDate] = useState(
+    formatDate(subtractYears(new Date(), timeSpanDropdownOptions[0].value))
+  );
+
+  const { data, isLoading, error } = useFetch({
+    url: `https://api.frankfurter.app/${earliestDate}..`,
+    params: { from: baseCurrency },
+  });
 
   function toggleCurrencyCheck(currency) {
     const currentIndex = checkedCurrencies.indexOf(currency);
@@ -35,6 +43,43 @@ export default function ExchangeRatesSection({
     }
 
     setCheckedCurrencies(newCheckedCurrencies);
+  }
+
+  function renderChart() {
+    if (isLoading) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      );
+    }
+
+    if (error) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          {error}
+        </Box>
+      );
+    }
+
+    return (
+      <Chart
+        rates={parseRatesForChart(data?.rates)}
+        checkedCurrencies={checkedCurrencies}
+      />
+    );
   }
 
   return (
@@ -106,28 +151,13 @@ export default function ExchangeRatesSection({
               paddingBottom: 2,
             }}
           >
-            {isLoadingCurrencies ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <CircularProgress />
-              </Box>
-            ) : (
-              <Chart
-                rates={parseRatesForChart(timeSeries?.rates)}
-                checkedCurrencies={checkedCurrencies}
-              />
-            )}
+            {renderChart()}
           </Paper>
         </Box>
 
         <Box marginTop={1} sx={{ float: 'right' }}>
           <OpenModal buttonText="Download Data">
-            <DownloadMenu downloadData={timeSeries} />
+            <DownloadMenu downloadData={data} />
           </OpenModal>
         </Box>
       </Box>

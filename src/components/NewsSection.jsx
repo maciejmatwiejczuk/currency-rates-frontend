@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Stack,
@@ -10,6 +11,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
+import { useFetch } from '../hooks/useFetch';
 import { formatDate } from '../utils/formatDate';
 
 const Image = styled('img')(() => ({
@@ -17,12 +19,39 @@ const Image = styled('img')(() => ({
   borderRadius: 4,
 }));
 
-export default function NewsSection({
-  news,
-  page,
-  handlePageChange,
-  isLoadingNews,
-}) {
+export default function NewsSection({ baseCurrency, checkedCurrencies }) {
+  const [page, setPage] = useState(1);
+
+  function handlePageChange(event, value) {
+    setPage(value);
+  }
+
+  function createSearchString() {
+    let str = `${baseCurrency}|`;
+
+    for (const currency of checkedCurrencies) {
+      str += `${currency}|`;
+    }
+    str = str.slice(0, -1).toLowerCase();
+
+    return str;
+  }
+
+  const {
+    data: news,
+    isLoading,
+    error,
+  } = useFetch({
+    url: 'https://api.thenewsapi.com/v1/news/top',
+    params: {
+      api_token: 'DVbGsPtLbo78XcveQ6cPCkKUnHpNA3wOp1DC3Tka',
+      search: createSearchString(),
+      search_fields: 'title,description,keywords',
+      language: 'en',
+      page,
+    },
+  });
+
   function renderNewsItem(item) {
     return (
       <Paper
@@ -51,12 +80,9 @@ export default function NewsSection({
     );
   }
 
-  return (
-    <section>
-      <Typography variant="h2" component="h3" marginBottom={4}>
-        Top News
-      </Typography>
-      {isLoadingNews ? (
+  function renderNews() {
+    if (isLoading) {
+      return (
         <Box
           sx={{
             display: 'flex',
@@ -67,15 +93,37 @@ export default function NewsSection({
         >
           <CircularProgress />
         </Box>
-      ) : (
-        <Paper elevation={4} sx={{ padding: 4, marginBottom: 4 }}>
-          {
-            <Stack spacing={2}>
-              {news.map((item) => renderNewsItem(item))}
-            </Stack>
-          }
-        </Paper>
-      )}
+      );
+    }
+
+    if (error) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: 200,
+          }}
+        >
+          {error}
+        </Box>
+      );
+    }
+
+    return (
+      <Paper elevation={4} sx={{ padding: 4, marginBottom: 4 }}>
+        {<Stack spacing={2}>{news.map((item) => renderNewsItem(item))}</Stack>}
+      </Paper>
+    );
+  }
+
+  return (
+    <section>
+      <Typography variant="h2" component="h3" marginBottom={4}>
+        Top News
+      </Typography>
+      {renderNews()}
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
         <Pagination count={10} page={page} onChange={handlePageChange} />
       </Box>
@@ -84,8 +132,6 @@ export default function NewsSection({
 }
 
 NewsSection.propTypes = {
-  news: PropTypes.array,
-  page: PropTypes.number,
-  handlePageChange: PropTypes.func,
-  isLoadingNews: PropTypes.bool,
+  baseCurrency: PropTypes.string,
+  checkedCurrencies: PropTypes.arrayOf(PropTypes.string),
 };
