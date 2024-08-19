@@ -3,7 +3,7 @@ import { useContext } from 'react';
 
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { instance as axios } from '../config/axios';
 
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -29,7 +29,7 @@ export default function Login() {
 
     const data = new FormData(event.currentTarget);
     try {
-      const response = await axios.post('http://localhost:8080/login', {
+      const response = await axios.post('/login', {
         email: data.get('email'),
         password: data.get('password'),
       });

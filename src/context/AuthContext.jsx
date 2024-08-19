@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { instance as axios } from '../config/axios';
 
 export const AuthContext = createContext({});
 
@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
 
       if (email && accessToken && !ignore) {
         try {
-          const response = await axios.post('http://localhost:8080/verify', {
+          const response = await axios.post('/verify', {
             accessToken,
           });
 
