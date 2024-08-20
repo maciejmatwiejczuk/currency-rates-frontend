@@ -1,8 +1,6 @@
-# React + Vite
+# Currency Rates (client app)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The project consists of two repositories. The one you're looking at contains frontend app built in React.
+Second part of the project is a backend app that handles auth, written in Node.js with Express.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Backend app is available here: https://github.com/maciejmatwiejczuk/currency-rates-server
